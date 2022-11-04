@@ -70,7 +70,7 @@ func Ponder(refl *Reflection) {
 	graspMu.Lock()
 	defer graspMu.Unlock()
 
-	if call == "_search" {
+	if call == "_search" || call == "_async_search" {
 		search = getSearchId(refl.Request)
 		updateSearchStats(search, index)
 	}
