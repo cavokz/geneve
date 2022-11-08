@@ -39,3 +39,7 @@ tests/kuery/*
 # Go
 go.mod
 go.sum
+
+# test scripts
+gnv-explore-network.sh
+gnv-ignore.sh
