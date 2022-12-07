@@ -16,12 +16,12 @@ $ hexdump -C -n 32 /dev/random
 00000020
 ```
 
-Depending on the entropy of the source, this could be all is needed for some cryptographical uses.
+Depending on the entropy of the source, this could be all that is needed for some cryptographical uses.
 
-For our needs instead, data is represented by documents containing _field-value_ pairs where field names
-induce a hierarchical structure and field types loosely describe the set of values they can contain.
+For our needs, data is represented by documents containing _field-value_ pairs where field names induce
+a hierarchical structure and field types loosely describe the set of values that they can contain.
 
-Here the example above in a possible document form:
+The example above in a possible document form:
 
 ```
 random:
@@ -62,6 +62,6 @@ We can already make some useful observations.
 
 _Types do not say everything._ For instance, both `lighthouses.location.lat` and `lighthouses.location.lon` are marked as float numbers but are also subject to other limits. Indeed `lat` ∈ [-90, +90] and `lon` ∈ [-180, +180], generating them requires satisfying these additional constraints.
 
-_Some fields might depend on each other._ In the crypto example, `random.num_bits` is expected to match the length of `random.value`. In the lighthouses one, `location` is expected to be in UK, as per `country`. This implies that only some fields can be generated independently from each other, possibily at different times, whereas others need to be generated together and avoiding invalid combinations.
+_Some fields might depend on each other._ In the crypto example, `random.num_bits` is expected to match the length of `random.value`. In the lighthouses one, `location` is expected to be in UK, as per `country`. This implies that only some fields can be generated independently from each other, possibily at different times, whereas others need to be generated together and avoid invalid combinations.
 
-In a first attempt we could say that generating data is about drawing documents from a solution space having as many dimensions as the number of possible fields (each dimension accounting for all the possible values of the given field) where all the invalid combinations have been removed.
+As a first attempt we could say that generating data is about drawing documents from a solution space having as many dimensions as the number of possible fields (each dimension accounting for all the possible values of the given field) where all the invalid combinations have been removed.
