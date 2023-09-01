@@ -543,7 +543,7 @@ class SignalsTestCase:
             output = None
         return jupyter.Code(source, output, **kwargs)
 
-    def report_rules(self, rules, rule_ids, title, *, docs_cell=True):
+    def report_rules(self, rules, rule_ids, title, report=None, *, docs_cell=True):
         prefix = "Geneve: "
         prefix_len = len(prefix)
         with self.nb.chapter(f"## {title} ({len(rule_ids)})") as cells:
@@ -571,6 +571,9 @@ class SignalsTestCase:
                     cells.append(jupyter.Markdown("\n".join(descr)))
                     if self.multiplying_factor == 1:
                         cells.append(self.query_cell(rule["query"], None))
+
+                    if report is not None:
+                        report.append(rule["name"])
 
     def debug_rules(self, rules, rule_ids):
         lines = []
@@ -613,13 +616,21 @@ class SignalsTestCase:
             if signals > expected
         }
 
+        report = {
+            "failed": [],
+            "unsuccessful": [],
+            "no signals": [],
+            "too few signals": [],
+            "too many signals": [],
+        }
+
         rules = sorted(rules, key=lambda rule: rule["name"])
 
-        self.report_rules(rules, failed, "Failed rules")
-        self.report_rules(rules, unsuccessful, "Unsuccessful rules with signals")
-        self.report_rules(rules, no_signals, "Rules with no signals")
-        self.report_rules(rules, too_few_signals, "Rules with too few signals")
-        self.report_rules(rules, too_many_signals, "Rules with too many signals")
+        self.report_rules(rules, failed, "Failed rules", report["failed"])
+        self.report_rules(rules, unsuccessful, "Unsuccessful rules with signals", report["unsuccessful"])
+        self.report_rules(rules, no_signals, "Rules with no signals", report["no signals"])
+        self.report_rules(rules, too_few_signals, "Rules with too few signals", report["too few signals"])
+        self.report_rules(rules, too_many_signals, "Rules with too many signals", report["too many signals"])
         self.report_rules(rules, correct_signals, "Rules with the correct signals", docs_cell=False)
 
         self.assertSignals(rules, failed, "Failed rules", getattr(self, "ack_failed", 0))
@@ -627,3 +638,5 @@ class SignalsTestCase:
         self.assertSignals(rules, no_signals, "Rules with no signals", getattr(self, "ack_no_signals", 0))
         self.assertSignals(rules, too_few_signals, "Rules with too few signals", getattr(self, "ack_too_few_signals", 0))
         self.assertSignals(rules, too_many_signals, "Rules with too many signals", getattr(self, "ack_too_many_signals", 0))
+
+        print(report)
