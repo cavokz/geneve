@@ -176,7 +176,7 @@ class TestSignalsRules(tu.SignalsTestCase, tu.OnlineTestCase, tu.SeededTestCase,
                     "query": rule.query,
                     "language": rule.language,
                     "max_signals": 1000,
-                    "enabled": True,
+                    "enabled": False,
                     ".test_private": {},  # private test data, not sent to Kibana
                 }
             )

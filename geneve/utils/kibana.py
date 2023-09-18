@@ -112,6 +112,15 @@ class Kibana:
         res.raise_for_status()
         return {rule["id"]: rule for rule in res.json()}
 
+    def bulk_action_detection_engine_rules(self, action, ids):
+        url = f"{self.url}/api/detection_engine/rules/_bulk_action"
+        req = {
+            "ids": ids,
+            "action": action,
+        }
+        res = self.session.post(url, data=json.dumps(req))
+        res.raise_for_status()
+
     def delete_detection_engine_rules(self, rules=None):
         if rules is None:
             rules = self.find_detection_engine_rules()

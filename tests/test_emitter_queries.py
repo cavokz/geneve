@@ -870,7 +870,7 @@ class TestSignalsQueries(tu.SignalsTestCase, tu.OnlineTestCase, tu.SeededTestCas
                     "query": query,
                     "language": guess.language,
                     "max_signals": 200,
-                    "enabled": True,
+                    "enabled": False,
                     ".test_private": {},  # private test data, not sent to Kibana
                 }
             )

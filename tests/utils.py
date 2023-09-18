@@ -32,7 +32,7 @@ from functools import partial
 from pathlib import Path
 
 from geneve.events_emitter import SourceEvents
-from geneve.utils import load_rules, load_schema, random
+from geneve.utils import batched, load_rules, load_schema, random
 
 from . import jupyter
 
@@ -379,15 +379,25 @@ class SignalsTestCase:
         pending = {}
         for rule, rule_id in zip(rules, ret):
             rule["id"] = rule_id
-            if rule["enabled"]:
-                pending[rule_id] = ret[rule_id]
+            pending[rule_id] = ret[rule_id]
         return pending
+
+    def enable_pending_rules(self, pending):
+        ids = []
+        for rule in pending.values():
+            if not rule["enabled"]:
+                rule["enabled"] = True
+                ids.append(rule["id"])
+        for batch in batched(ids, 100):
+            self.kbn.bulk_action_detection_engine_rules("enable", batch)
 
     def wait_for_rules(self, pending, timeout=300, sleep=5):
         start = time.time()
         successful = {}
         failed = {}
         while (time.time() - start) < timeout:
+            if any(not rule["enabled"] for rule in pending.values()):
+                self.enable_pending_rules(pending)
             if verbose:
                 sys.stderr.write(f"{len(pending)} ")
                 sys.stderr.flush()
@@ -480,7 +490,7 @@ class SignalsTestCase:
         if verbose:
             sys.stderr.write("... ")
             sys.stderr.flush()
-        total_count = sum(rule[".test_private"]["branch_count"] for rule in rules if rule["enabled"])
+        total_count = sum(rule[".test_private"].get("branch_count", 0) for rule in rules)
         partial_count = 0
         partial_count_prev = 0
         partial_time = time.time()
@@ -516,7 +526,7 @@ class SignalsTestCase:
         prefix_len = len(prefix)
         with self.nb.chapter(f"## {title} ({len(rule_ids)})") as cells:
             for rule in rules:
-                if rule["id"] in rule_ids:
+                if rule["id"] in rule_ids and "branch_count" in rule[".test_private"]:
                     rule_name = rule["name"]
                     if rule_name.startswith(prefix):
                         rule_name = rule_name[prefix_len:]
