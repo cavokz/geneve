@@ -63,10 +63,14 @@ func Ponder(refl *Reflection) {
 	index, call, _ := splitPath(refl.URL.Path)
 	search := -1
 
+	if refl.StatusCode == 400 || call == "_async_search" {
+		logger.Println(refl.Request)
+	}
+
 	graspMu.Lock()
 	defer graspMu.Unlock()
 
-	if call == "_search" {
+	if call == "_search" || call == "_async_search" {
 		search = getSearchId(refl.Request)
 		updateSearchStats(search, index)
 	}
@@ -140,7 +144,7 @@ func updateIndexStats(index, call string, search int, refl *Reflection) {
 			graspMu.Lock()
 
 			if err != nil {
-				log.Println(err)
+				log.Printf("isIndexNonEmpty: %s", err.Error())
 			} else if nonEmpty {
 				stats.nonEmpty = nonEmpty
 			}

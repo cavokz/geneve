@@ -46,14 +46,14 @@ func StartReflector(addr, remote string, reflections chan<- *Reflection) error {
 
 		ref_req, err := refl.ReflectRequest(req, remote_url)
 		if err != nil {
-			log.Println(err)
+			log.Printf("ReflectionRequest: %s", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		resp, err := client.Do(ref_req)
 		if err != nil {
-			log.Println(err)
+			log.Printf("ClientDo: %s", err.Error())
 			http.Error(w, err.Error(), http.StatusBadGateway)
 			return
 		}
@@ -61,7 +61,7 @@ func StartReflector(addr, remote string, reflections chan<- *Reflection) error {
 
 		err = refl.ReflectResponse(resp, w)
 		if err != nil {
-			log.Println(err)
+			log.Printf("ReflectionResponse: %s", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
